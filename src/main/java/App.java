@@ -5,6 +5,7 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.util.FileManager;
@@ -18,10 +19,13 @@ public class App {
 		
 		Model model = loadModel();
 
-		String queryString = "PREFIX dbc:<http://purl.org/dc/terms/>"
-						+ "PREFIX skos:<http://www.w3.org/2004/02/skos/core#>"
-						+ "SELECT ?broader WHERE {"
-						+ "?broader skos:broader <http://pt.dbpedia.org/resource/Categoria:Brasil> ."
+		String queryString = "PREFIX dbc:<http://purl.org/dc/terms/> "
+						+ "PREFIX skos:<http://www.w3.org/2004/02/skos/core#> "
+						+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> "
+						+ "SELECT ?narrowLabel WHERE { "
+						+ "?concept rdfs:label \"Brasil\"@pt . "
+						+ "?narrow skos:broader ?concept . " 
+						+ "?narrow rdfs:label ?narrowLabel "
 						+ "} ";
 		
 		Query query = QueryFactory.create(queryString);
@@ -30,7 +34,8 @@ public class App {
 		
 		while (rs.hasNext()) {
 			QuerySolution solution = rs.nextSolution();
-			System.out.println(solution);
+			Literal literal = solution.getLiteral("narrowLabel");
+			System.out.println(literal.getString());
 		}
 		
 	}
