@@ -19,10 +19,19 @@ public class DBPediaService {
 	private static final String CATEGORY_LABELS = "category-labels_pt.ttl",
 			SKOS_CATEGORIES = "skos-categories_pt.ttl";
 	
+	private static DBPediaService instance;
+	
 	private Model model;
 	
-	public DBPediaService() {
+	private DBPediaService() {
 		loadModel();
+	}
+	
+	public static DBPediaService getInstance() {
+		if (instance == null) {
+			instance = new DBPediaService();
+		}
+		return instance;
 	}
 	
 	private void loadModel() {
@@ -72,6 +81,33 @@ public class DBPediaService {
 							+ "SELECT ?broaderLabel WHERE { "
 							+ "?concept rdfs:label \"" + conceptName  + "\"@pt . "
 							+ "?concept skos:broader ?broader . " 
+							+ "?broader rdfs:label ?broaderLabel "
+							+ "} ";
+			
+		Query query = QueryFactory.create(queryString);
+		
+		ResultSet rs = QueryExecutionFactory.create(query, model).execSelect();
+		
+		List<String> broaderConcepts = new ArrayList<String>();
+		
+		while (rs.hasNext()) {
+			QuerySolution solution = rs.nextSolution();
+			Literal literal = solution.getLiteral("broaderLabel");
+			broaderConcepts.add(literal.getString());
+		}
+		
+		return broaderConcepts;
+				
+	}
+	
+	public List<String> findAllBroaderConcepts(String conceptName) {
+
+		String queryString = "PREFIX dbc:<http://purl.org/dc/terms/> "
+							+ "PREFIX skos:<http://www.w3.org/2004/02/skos/core#> "
+							+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> "
+							+ "SELECT ?broaderLabel WHERE { "
+							+ "?concept rdfs:label \"" + conceptName  + "\"@pt . "
+							+ "?concept skos:broader* ?broader . " 
 							+ "?broader rdfs:label ?broaderLabel "
 							+ "} ";
 			
