@@ -47,5 +47,20 @@ public class DBpediaCategoriaBrasilTest {
 		System.out.println(builder.toString());
 	}
 	
+	@Test
+	public void findAllBroaderConceptsTest() {
+		List<String> broaderConcepts = service.findAllBroaderConcepts("Brasil");
+		StringBuilder builder = new StringBuilder("Conceitos pais: ");
+		ListIterator<String> iterator = broaderConcepts.listIterator();
+		while (iterator.hasNext()) {
+			String concept = iterator.next();
+			builder.append(concept);
+			if (iterator.hasNext()) {
+				builder.append(", ");
+			}
+		}
+		System.out.println(builder.toString());
+	}
+	
 	
 }
