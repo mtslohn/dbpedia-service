@@ -62,5 +62,4 @@ public class DBpediaCategoriaBrasilTest {
 		System.out.println(builder.toString());
 	}
 	
-	
 }
