@@ -11,6 +11,7 @@ import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -125,6 +126,37 @@ public List<String> findAllNarrowConcepts(String conceptName) {
 		LOGGER.debug(queryString);
 			
 		Query query = QueryFactory.create(queryString);
+		
+		ResultSet rs = QueryExecutionFactory.create(query, model).execSelect();
+		
+		List<String> broaderConcepts = new ArrayList<String>();
+		
+		while (rs.hasNext()) {
+			QuerySolution solution = rs.nextSolution();
+			Literal literal = solution.getLiteral("broaderLabel");
+			broaderConcepts.add(literal.getString());
+		}
+		
+		return broaderConcepts;
+				
+	}
+	
+	public List<String> findBroaderConcepts(String conceptName, int maxLevel) {
+
+		String queryStringTemplate = "PREFIX dbc:<http://purl.org/dc/terms/> "
+							+ "PREFIX skos:<http://www.w3.org/2004/02/skos/core#> "
+							+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> "
+							+ "SELECT ?broaderLabel WHERE { "
+							+ "?concept rdfs:label \"%s\"@pt . "
+							+ "?concept skos:broader{1, %s} ?broader . " 
+							+ "?broader rdfs:label ?broaderLabel "
+							+ "} ";
+		
+		String queryString = String.format(queryStringTemplate, conceptName, maxLevel);
+		
+		LOGGER.debug(queryString);
+		
+		Query query = QueryFactory.create(queryString, Syntax.syntaxARQ);
 		
 		ResultSet rs = QueryExecutionFactory.create(query, model).execSelect();
 		
