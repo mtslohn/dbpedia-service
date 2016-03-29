@@ -1,11 +1,14 @@
 package br.ufsc.egc.dbpeader.reader.test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
+import br.ufsc.egc.curriculumextractor.model.taxonomy.Tree;
 import br.ufsc.egc.dbpedia.reader.service.DBPediaService;
 
 public class DBpediaCategoriaBrasilTest {
@@ -60,6 +63,14 @@ public class DBpediaCategoriaBrasilTest {
 			}
 		}
 		System.out.println(builder.toString());
+	}
+	
+	@Test
+	public void findTreeTest() {
+		Term broaderConcepts = service.findTree("Brasil", 2);
+		Tree tree = new Tree();
+		tree.setRoots(Arrays.asList(broaderConcepts));
+		System.out.println(tree.print());
 	}
 	
 }

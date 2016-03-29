@@ -19,6 +19,8 @@ import org.apache.jena.util.FileManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 
+import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
+
 public class DBPediaService {
 	
 	private static final String CATEGORY_LABELS = "category-labels_pt.ttl",
@@ -134,6 +136,9 @@ public List<String> findAllNarrowConcepts(String conceptName) {
 		while (rs.hasNext()) {
 			QuerySolution solution = rs.nextSolution();
 			Literal literal = solution.getLiteral("broaderLabel");
+			if (literal.getString().startsWith("!")) { // meta-categoria - nao eh taxonomica
+				continue;
+			}
 			broaderConcepts.add(literal.getString());
 		}
 		
@@ -141,6 +146,35 @@ public List<String> findAllNarrowConcepts(String conceptName) {
 				
 	}
 	
+	public Term findTree(String conceptName, int levels) {
+		Term term = new Term();
+		term.setLabel(conceptName);
+		
+		mountTree(term, levels);
+		
+		return term;
+	}
+	
+	private void mountTree(Term term, int levels) {
+		
+		if (levels >= 1) {
+			
+			List<String> sons = findBroaderConcepts(term.getLabel());
+			
+			for (String son: sons) {
+				
+				Term sonTerm = new Term();
+				sonTerm.setLabel(son);
+				
+				term.addSon(sonTerm);
+				
+				mountTree(sonTerm, (levels - 1));
+			}
+			
+		}
+		
+	}
+
 	public List<String> findBroaderConcepts(String conceptName, int maxLevel) {
 
 		String queryStringTemplate = "PREFIX dbc:<http://purl.org/dc/terms/> "
