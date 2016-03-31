@@ -1,6 +1,7 @@
 package br.ufsc.egc.curriculumextractor.model.taxonomy;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Tree {
@@ -58,6 +59,18 @@ public class Tree {
 			builder.append(innerPrefix + ": " + term.getLabel() + "\n");
 			print(builder, innerPrefix, term.getSons());
 		}
+	}
+
+	public Tree clean(Collection<String> entityList) {	
+		Tree tree = new Tree();
+		for (Term root: getRoots()) {
+			clean(tree, root, entityList);
+		}
+		return tree;
+	}
+
+	private void clean(Tree tree, Term parent, Collection<String> entityList) {
+		
 	}
 
 }
