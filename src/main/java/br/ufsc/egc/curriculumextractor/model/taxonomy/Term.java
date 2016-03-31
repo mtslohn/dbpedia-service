@@ -12,9 +12,12 @@ public class Term {
 	private String label;
 	private List<Term> sons;
 	
+	private Term parent;
+	
 	public Term() {
 		label = "";
 		sons = new ArrayList<Term>();
+		parent = null;
 	}
 
 	public String getLabel() {
@@ -33,6 +36,14 @@ public class Term {
 		this.sons = sons;
 	}
 	
+	public Term getParent() {
+		return parent;
+	}
+	
+	private void setParent(Term parent) {
+		this.parent = parent;
+	}
+	
 	public void addSon(Term term) {
 		if (this == term) {
 			throw new RuntimeException("Quebra de árvore");
@@ -41,7 +52,27 @@ public class Term {
 			LOGGER.warn("Tentativa de inserir elemento já existente. Ignorando...");
 			return;
 		}
+		term.setParent(this);
 		sons.add(term);
+	}
+	
+	public Term find(String label, boolean ignoreCase) {
+		return find(this, label, ignoreCase);
+	}
+
+	private Term find(Term term, String label, boolean ignoreCase) {
+		if ((ignoreCase && label.equalsIgnoreCase(term.getLabel())) || (label.equals(term.getLabel()))) {
+			return term;
+		} else {
+			Term retorno = null;
+			for (Term son: term.getSons()) {
+				retorno = find(son, label, ignoreCase);
+				if (retorno != null) {
+					return retorno;
+				}
+			}
+			return retorno;
+		}
 	}
 
 	@Override
