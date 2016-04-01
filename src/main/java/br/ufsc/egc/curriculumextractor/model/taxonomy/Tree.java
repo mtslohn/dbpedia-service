@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 public class Tree {
+
+	private static final Logger LOGGER = Logger.getLogger(Tree.class);
 
 	private List<Term> roots;
 
@@ -61,16 +65,58 @@ public class Tree {
 		}
 	}
 
-	public Tree clean(Collection<String> entityList) {	
+	public Tree clean(Collection<String> entityList) {
 		Tree tree = new Tree();
-		for (Term root: getRoots()) {
-			clean(tree, root, entityList);
+		for (Term root : getRoots()) {
+			createCleanTree(tree, null, root, entityList);
 		}
 		return tree;
 	}
 
-	private void clean(Tree tree, Term parent, Collection<String> entityList) {
-		
+	private void createCleanTree(Tree tree, Term parent, Term current,
+			Collection<String> entityList) {
+		for (Term son : current.getSons()) {
+			if (hasTerm(entityList, son.getLabel())) {
+				String newParentLabel = null;
+				if (parent != null) {
+					newParentLabel = parent.getLabel();
+				}
+				tree.addToTree(newParentLabel, son.getLabel());
+				createCleanTree(tree, son, son, entityList);
+			}
+			createCleanTree(tree, parent, son, entityList);
+		}
+	}
+
+	private boolean hasTerm(Collection<String> entityList, String label) {
+		for (String entity: entityList) {
+			if (entity.equalsIgnoreCase(label)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void addToTree(String broader, String narrower) {
+		Term sonTerm = new Term();
+		sonTerm.setLabel(narrower);
+
+		if (broader == null) {
+			addRoot(sonTerm);
+		} else {
+			if (broader.equalsIgnoreCase(narrower)) {
+				LOGGER.warn("Tentativa de inserir pai e filhos iguais. Abortando...");
+				return;
+			}
+			Term term = find(broader);
+			if (term == null) {
+				term = new Term();
+				term.setLabel(broader);
+				addRoot(term);
+			}
+			term.addSon(sonTerm);
+		}
+
 	}
 
 }
