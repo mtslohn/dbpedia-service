@@ -84,7 +84,9 @@ public class Tree {
 				tree.addToTree(newParentLabel, son.getLabel());
 				createCleanTree(tree, son, son, entityList);
 			}
-			createCleanTree(tree, parent, son, entityList);
+			else {
+				createCleanTree(tree, parent, son, entityList);
+			}
 		}
 	}
 

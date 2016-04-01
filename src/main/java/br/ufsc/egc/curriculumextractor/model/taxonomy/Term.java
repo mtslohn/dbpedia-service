@@ -105,7 +105,11 @@ public class Term {
 			return false;
 		return true;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "Term [label=" + label + ", sons=" + sons + ", parent=" + parent
+				+ "]";
+	}
 
 }
