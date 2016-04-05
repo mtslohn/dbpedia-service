@@ -98,12 +98,25 @@ public class Tree {
 		}
 		return false;
 	}
+	
+	private boolean hasTerm(List<Term> terms, String label) {
+		for (Term term: terms) {
+			if (term.getLabel().equalsIgnoreCase(label)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public void addToTree(String broader, String narrower) {
 		Term sonTerm = new Term();
 		sonTerm.setLabel(narrower);
 
 		if (broader == null) {
+			if (hasTerm(getRoots(), narrower)) {
+				LOGGER.warn("Tentativa de elemento já existente. Abortando...");
+				return;
+			}
 			addRoot(sonTerm);
 		} else {
 			if (broader.equalsIgnoreCase(narrower)) {
@@ -115,6 +128,10 @@ public class Tree {
 				term = new Term();
 				term.setLabel(broader);
 				addRoot(term);
+			}
+			if (hasTerm(term.getSons(), narrower)) {
+				LOGGER.warn("Tentativa de elemento já existente. Abortando...");
+				return;
 			}
 			term.addSon(sonTerm);
 		}
