@@ -137,5 +137,33 @@ public class Tree {
 		}
 
 	}
+	
+	public void join() {
+		
+		for (Term selectedRoot: getRoots()) {
+			for (Term root: getRoots()) {
+				moveRootIfPossible(selectedRoot, root);
+			}
+		}
+	}
+
+	private boolean moveRootIfPossible(Term selectedRoot, Term term) {
+		if (term.getLabel().equalsIgnoreCase(selectedRoot.getLabel()) && (isNotRoot(term))) {
+			term.addSons(selectedRoot.getSons());
+			getRoots().remove(selectedRoot);
+			return true;
+		} else {
+			for (Term son: term.getSons()) {
+				if (moveRootIfPossible(selectedRoot, son)) {
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
+	private boolean isNotRoot(Term term) {
+		return !getRoots().contains(term);
+	}
 
 }

@@ -44,6 +44,12 @@ public class Term {
 		this.parent = parent;
 	}
 	
+	public void addSons(List<Term> terms) {
+		for (Term term: terms) {
+			addSon(term);
+		}
+	}
+	
 	public void addSon(Term term) {
 		if (this == term) {
 			throw new RuntimeException("Quebra de árvore");
