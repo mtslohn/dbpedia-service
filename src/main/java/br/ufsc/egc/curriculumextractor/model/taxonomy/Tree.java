@@ -1,12 +1,13 @@
 package br.ufsc.egc.curriculumextractor.model.taxonomy;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-public class Tree {
+public class Tree implements Serializable {
 
 	private static final Logger LOGGER = Logger.getLogger(Tree.class);
 
@@ -83,24 +84,23 @@ public class Tree {
 				}
 				tree.addToTree(newParentLabel, son.getLabel());
 				createCleanTree(tree, son, son, entityList);
-			}
-			else {
+			} else {
 				createCleanTree(tree, parent, son, entityList);
 			}
 		}
 	}
 
 	private boolean hasTerm(Collection<String> entityList, String label) {
-		for (String entity: entityList) {
+		for (String entity : entityList) {
 			if (entity.equalsIgnoreCase(label)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	private boolean hasTerm(List<Term> terms, String label) {
-		for (Term term: terms) {
+		for (Term term : terms) {
 			if (term.getLabel().equalsIgnoreCase(label)) {
 				return true;
 			}
@@ -137,23 +137,28 @@ public class Tree {
 		}
 
 	}
-	
+
 	public void join() {
-		
-		for (Term selectedRoot: getRoots()) {
-			for (Term root: getRoots()) {
-				moveRootIfPossible(selectedRoot, root);
+
+		List<Term> rootsClone = new ArrayList<Term>(getRoots());
+
+		for (Term selectedRoot : rootsClone) {
+			for (Term root : rootsClone) {
+				if (root != selectedRoot) {
+					moveRootIfPossible(selectedRoot, root);
+				}
 			}
 		}
 	}
 
 	private boolean moveRootIfPossible(Term selectedRoot, Term term) {
-		if (term.getLabel().equalsIgnoreCase(selectedRoot.getLabel()) && (isNotRoot(term))) {
+		if (term.getLabel().equalsIgnoreCase(selectedRoot.getLabel())
+				&& (isNotRoot(term))) {
 			term.addSons(selectedRoot.getSons());
 			getRoots().remove(selectedRoot);
 			return true;
 		} else {
-			for (Term son: term.getSons()) {
+			for (Term son : term.getSons()) {
 				if (moveRootIfPossible(selectedRoot, son)) {
 					return true;
 				}

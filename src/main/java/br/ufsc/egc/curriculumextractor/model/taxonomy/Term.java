@@ -1,11 +1,12 @@
 package br.ufsc.egc.curriculumextractor.model.taxonomy;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-public class Term {
+public class Term implements Serializable {
 	
 	private static final Logger LOGGER = Logger.getLogger(Term.class);
 
