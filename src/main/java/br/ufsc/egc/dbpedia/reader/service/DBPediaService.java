@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.query.ParameterizedSparqlString;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
@@ -20,7 +19,6 @@ import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.op.OpBGP;
 import org.apache.jena.sparql.core.BasicPattern;
-import org.apache.jena.sparql.core.ResultBinding;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.ResultSetStream;
@@ -142,6 +140,20 @@ public class DBPediaService {
 		
 		QueryIterator queryIterator = Algebra.exec(op, model);
 		
+		List<String> broaderConcepts = new ArrayList<String>();
+		
+//		while (queryIterator.hasNext()) {
+//			Binding binding = queryIterator.nextBinding() ;
+//			Node broaderLabelNode = binding.get(varBroaderLabel) ;
+//			String broaderLabel = NodeFmtLib.displayStr(broaderLabelNode);
+//			if (broaderLabel.startsWith("!")) { 
+//				continue;
+//			}
+//			broaderConcepts.add(broaderLabel);
+//		}
+		
+//		queryIterator.close();
+		
 		List<String> resultVars = new ArrayList<String>();
 		resultVars.add("broaderLabel");
 		ResultSet rs = new ResultSetStream(resultVars , model, queryIterator);
@@ -165,21 +177,17 @@ public class DBPediaService {
 //		Query query = sparqlString.asQuery();
 
 //		ResultSet rs = QueryExecutionFactory.create(query, model).execSelect();
-
-		List<String> broaderConcepts = new ArrayList<String>();
-
+		
 		while (rs.hasNext()) {
 			QuerySolution solution = rs.nextSolution();
-			Literal literal = solution.getLiteral("broaderLabel");
-			if (literal.getString().startsWith("!")) { // meta-categoria - nao
+			String concept = solution.getLiteral("broaderLabel").getString();
+			if (concept.startsWith("!")) { // meta-categoria - nao
 														// eh taxonomica
 				continue;
 			}
-			broaderConcepts.add(literal.getString());
+			broaderConcepts.add(concept);
 		}
 		
-		queryIterator.close();
-
 		return broaderConcepts;
 
 	}
