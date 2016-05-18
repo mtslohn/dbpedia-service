@@ -4,8 +4,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.print.attribute.standard.Severity;
-
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QueryFactory;
@@ -15,9 +15,15 @@ import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.sparql.algebra.Algebra;
+import org.apache.jena.sparql.algebra.Op;
+import org.apache.jena.sparql.algebra.op.OpBGP;
+import org.apache.jena.sparql.core.BasicPattern;
+import org.apache.jena.sparql.core.Var;
+import org.apache.jena.sparql.engine.QueryIterator;
+import org.apache.jena.sparql.engine.ResultSetStream;
 import org.apache.jena.util.FileManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.Priority;
 
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
 
@@ -110,35 +116,78 @@ public class DBPediaService {
 		return narrowConcepts;
 
 	}
+	
+	
+	//TODO refactoring
+//	private ParameterizedSparqlString sparqlString = null;
 
 	public List<String> findBroaderConcepts(String conceptName) {
-
-		String queryString = "PREFIX dbc:<http://purl.org/dc/terms/> "
-				+ "PREFIX skos:<http://www.w3.org/2004/02/skos/core#> "
-				+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> "
-				+ "SELECT ?broaderLabel WHERE { " + "?concept rdfs:label \""
-				+ conceptName + "\"@pt . "
-				+ "?concept skos:broader ?broader . "
-				+ "?broader rdfs:label ?broaderLabel " + "} ";
-
-		LOGGER.debug(queryString);
-
-		Query query = QueryFactory.create(queryString);
-
-		ResultSet rs = QueryExecutionFactory.create(query, model).execSelect();
-
+		
+		BasicPattern basicPattern = new BasicPattern();
+		
+		Var varConcept = Var.alloc("concept");
+		Var varBroader = Var.alloc("broader");
+		Var varBroaderLabel = Var.alloc("broaderLabel");
+		
+		final String RDFS_URI = "http://www.w3.org/2000/01/rdf-schema#";
+		final String SKOS_URI = "http://www.w3.org/2004/02/skos/core#";
+		
+		basicPattern.add(new Triple(varConcept, NodeFactory.createURI(RDFS_URI + "label"), NodeFactory.createLiteral(conceptName, "pt")));
+		basicPattern.add(new Triple(varConcept, NodeFactory.createURI(SKOS_URI + "broader"), varBroader));
+		basicPattern.add(new Triple(varBroader, NodeFactory.createURI(RDFS_URI + "label"), varBroaderLabel));
+		
+		Op op = new OpBGP(basicPattern);
+		
+		QueryIterator queryIterator = Algebra.exec(op, model);
+		
 		List<String> broaderConcepts = new ArrayList<String>();
+		
+//		while (queryIterator.hasNext()) {
+//			Binding binding = queryIterator.nextBinding() ;
+//			Node broaderLabelNode = binding.get(varBroaderLabel) ;
+//			String broaderLabel = NodeFmtLib.displayStr(broaderLabelNode);
+//			if (broaderLabel.startsWith("!")) { 
+//				continue;
+//			}
+//			broaderConcepts.add(broaderLabel);
+//		}
+		
+//		queryIterator.close();
+		
+		List<String> resultVars = new ArrayList<String>();
+		resultVars.add("broaderLabel");
+		ResultSet rs = new ResultSetStream(resultVars , model, queryIterator);
+		
+//		if (sparqlString == null) {
+//			sparqlString = new ParameterizedSparqlString();
+//
+//			sparqlString.append("PREFIX dbc:<http://purl.org/dc/terms/> "
+//					+ "PREFIX skos:<http://www.w3.org/2004/02/skos/core#> "
+//					+ "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#> "
+//					+ "SELECT ?broaderLabel WHERE { " 
+//					+ "?concept rdfs:label ?conceptName . "
+//					+ "?concept skos:broader ?broader . "
+//					+ "?broader rdfs:label ?broaderLabel " + "} ");
+//		}
+//		
+//		sparqlString.setLiteral("conceptName", conceptName, "pt");
 
+//		LOGGER.debug(sparqlString.toString());
+
+//		Query query = sparqlString.asQuery();
+
+//		ResultSet rs = QueryExecutionFactory.create(query, model).execSelect();
+		
 		while (rs.hasNext()) {
 			QuerySolution solution = rs.nextSolution();
-			Literal literal = solution.getLiteral("broaderLabel");
-			if (literal.getString().startsWith("!")) { // meta-categoria - nao
+			String concept = solution.getLiteral("broaderLabel").getString();
+			if (concept.startsWith("!")) { // meta-categoria - nao
 														// eh taxonomica
 				continue;
 			}
-			broaderConcepts.add(literal.getString());
+			broaderConcepts.add(concept);
 		}
-
+		
 		return broaderConcepts;
 
 	}
