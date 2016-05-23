@@ -3,6 +3,7 @@ package br.ufsc.egc.curriculumextractor.model.taxonomy;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -54,6 +55,7 @@ public class Tree implements Serializable {
 	}
 
 	private void print(StringBuilder builder, String prefix, List<Term> terms) {
+		Collections.sort(terms);
 		for (int index = 0; index < terms.size(); index++) {
 			String innerPrefix = prefix;
 			if (!prefix.isEmpty()) {

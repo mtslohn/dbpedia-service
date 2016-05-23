@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-public class Term implements Serializable {
+public class Term implements Serializable, Comparable<Term> {
 	
 	private static final Logger LOGGER = Logger.getLogger(Term.class);
 
@@ -117,6 +117,11 @@ public class Term implements Serializable {
 	public String toString() {
 		return "Term [label=" + label + ", sons=" + sons + ", parent=" + parent
 				+ "]";
+	}
+
+	@Override
+	public int compareTo(Term other) {
+		return this.getLabel().toLowerCase().compareTo(other.getLabel().toLowerCase());
 	}
 
 }
