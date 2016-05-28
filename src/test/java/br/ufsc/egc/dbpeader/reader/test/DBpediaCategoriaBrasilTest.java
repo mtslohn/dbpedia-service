@@ -1,5 +1,6 @@
 package br.ufsc.egc.dbpeader.reader.test;
 
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
@@ -9,19 +10,20 @@ import org.junit.Test;
 
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Tree;
-import br.ufsc.egc.dbpedia.reader.service.DBPediaService;
+import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface;
+import br.ufsc.egc.dbpedia.reader.service.impl.DBPediaServiceImpl;
 
 public class DBpediaCategoriaBrasilTest {
 	
-	private DBPediaService service; 
+	private DBPediaServiceInterface service; 
 	
 	@Before
 	public void prepare() {
-		service = DBPediaService.getInstance();
+		service = DBPediaServiceImpl.getInstance();
 	}
 	
 	@Test
-	public void findNarrowConceptsTest() {
+	public void findNarrowConceptsTest() throws RemoteException {
 		List<String> narrowConcepts = service.findNarrowConcepts("Brasil");
 		StringBuilder builder = new StringBuilder("Conceitos filhos: ");
 		ListIterator<String> iterator = narrowConcepts.listIterator();
@@ -36,7 +38,7 @@ public class DBpediaCategoriaBrasilTest {
 	}
 
 	@Test
-	public void findBroaderConceptsTest() {
+	public void findBroaderConceptsTest() throws RemoteException {
 		List<String> broaderConcepts = service.findBroaderConcepts("Brasil");
 		StringBuilder builder = new StringBuilder("Conceitos pais: ");
 		ListIterator<String> iterator = broaderConcepts.listIterator();
@@ -51,7 +53,7 @@ public class DBpediaCategoriaBrasilTest {
 	}
 	
 	@Test
-	public void findAllBroaderConceptsTest() {
+	public void findAllBroaderConceptsTest() throws RemoteException {
 		List<String> broaderConcepts = service.findAllBroaderConcepts("Brasil");
 		StringBuilder builder = new StringBuilder("Conceitos pais: ");
 		ListIterator<String> iterator = broaderConcepts.listIterator();
@@ -66,7 +68,7 @@ public class DBpediaCategoriaBrasilTest {
 	}
 	
 	@Test
-	public void findTreeTest() {
+	public void findTreeTest() throws RemoteException {
 		Term broaderConcepts = service.findTree("Brasil", 2);
 		Tree tree = new Tree();
 		tree.setRoots(Arrays.asList(broaderConcepts));
