@@ -1,8 +1,10 @@
-package br.ufsc.egc.dbpedia.reader.service;
+package br.ufsc.egc.dbpedia.reader.service.impl;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.jws.WebMethod;
 
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
@@ -26,26 +28,28 @@ import org.apache.jena.util.FileManager;
 import org.apache.log4j.Logger;
 
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
+import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface;
 
-public class DBPediaService {
+public class DBPediaServiceImpl implements DBPediaServiceInterface {
 
 	private static final String CATEGORY_LABELS = "category-labels_pt.ttl",
 			SKOS_CATEGORIES = "skos-categories_pt.ttl";
 
-	private static DBPediaService instance;
+	private static DBPediaServiceInterface instance;
 
 	private final Logger LOGGER = Logger.getLogger(getClass());
 
 	private Model model;
 
-	private DBPediaService() {
-
+	private DBPediaServiceImpl() {
+		LOGGER.info("Carregando serviço da DBPedia...");
 		loadModel();
+		LOGGER.info("Serviço da DBPedia carregado");
 	}
 
-	public static DBPediaService getInstance() {
+	public static DBPediaServiceInterface getInstance() {
 		if (instance == null) {
-			instance = new DBPediaService();
+			instance = new DBPediaServiceImpl();
 		}
 		return instance;
 	}
@@ -62,6 +66,10 @@ public class DBPediaService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface#findNarrowConcepts(java.lang.String)
+	 */
+	@WebMethod
 	public List<String> findNarrowConcepts(String conceptName) {
 
 		String queryString = "PREFIX dbc:<http://purl.org/dc/terms/> "
@@ -89,6 +97,10 @@ public class DBPediaService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface#findAllNarrowConcepts(java.lang.String)
+	 */
+	@WebMethod
 	public List<String> findAllNarrowConcepts(String conceptName) {
 
 		String queryString = "PREFIX dbc:<http://purl.org/dc/terms/> "
@@ -121,6 +133,10 @@ public class DBPediaService {
 	//TODO refactoring
 //	private ParameterizedSparqlString sparqlString = null;
 
+	/* (non-Javadoc)
+	 * @see br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface#findBroaderConcepts(java.lang.String)
+	 */
+	@WebMethod
 	public List<String> findBroaderConcepts(String conceptName) {
 		
 		BasicPattern basicPattern = new BasicPattern();
@@ -192,6 +208,10 @@ public class DBPediaService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface#findTree(java.lang.String, int)
+	 */
+	@WebMethod
 	public Term findTree(String conceptName, int levels) {
 		Term term = new Term();
 		term.setLabel(conceptName);
@@ -201,6 +221,7 @@ public class DBPediaService {
 		return term;
 	}
 
+	@WebMethod
 	private void mountTree(Term term, int levels) {
 
 		if (levels >= 1) {
@@ -221,7 +242,11 @@ public class DBPediaService {
 
 	}
 
-	public List<String> findBroaderConcepts(String conceptName, int maxLevel) {
+	/* (non-Javadoc)
+	 * @see br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface#findBroaderConceptsARQ(java.lang.String, int)
+	 */
+	@WebMethod
+	public List<String> findBroaderConceptsARQ(String conceptName, int maxLevel) {
 
 		String queryStringTemplate = "PREFIX dbc:<http://purl.org/dc/terms/> "
 				+ "PREFIX skos:<http://www.w3.org/2004/02/skos/core#> "
@@ -251,7 +276,10 @@ public class DBPediaService {
 		return broaderConcepts;
 
 	}
-
+	/* (non-Javadoc)
+	 * @see br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface#findAllBroaderConcepts(java.lang.String)
+	 */
+	@WebMethod
 	public List<String> findAllBroaderConcepts(String conceptName) {
 
 		String queryString = "PREFIX dbc:<http://purl.org/dc/terms/> "
