@@ -1,6 +1,6 @@
 package br.ufsc.egc.dbpedia.reader.service.impl;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +16,6 @@ import org.apache.jena.query.ResultSet;
 import org.apache.jena.query.Syntax;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.sparql.algebra.Algebra;
 import org.apache.jena.sparql.algebra.Op;
 import org.apache.jena.sparql.algebra.op.OpBGP;
@@ -24,16 +23,14 @@ import org.apache.jena.sparql.core.BasicPattern;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.QueryIterator;
 import org.apache.jena.sparql.engine.ResultSetStream;
-import org.apache.jena.util.FileManager;
+import org.apache.jena.tdb.TDBFactory;
 import org.apache.log4j.Logger;
 
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
 import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface;
+import br.ufsc.egc.dbpedia.reader.service.util.tdb.DBPediaTDBCreator;
 
 public class DBPediaServiceImpl implements DBPediaServiceInterface {
-
-	private static final String CATEGORY_LABELS = "category-labels_pt.ttl",
-			SKOS_CATEGORIES = "skos-categories_pt.ttl";
 
 	private static DBPediaServiceInterface instance;
 
@@ -55,15 +52,14 @@ public class DBPediaServiceImpl implements DBPediaServiceInterface {
 	}
 
 	private void loadModel() {
-
-		model = ModelFactory.createDefaultModel();
-
-		InputStream labelsStream = FileManager.get().open(CATEGORY_LABELS);
-		InputStream hierarchyStream = FileManager.get().open(SKOS_CATEGORIES);
-
-		model.read(labelsStream, null, "TURTLE");
-		model.read(hierarchyStream, null, "TURTLE");
-
+		File directory = new File(DBPediaTDBCreator.TDB_DIRECTORY);
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+		model = TDBFactory.createDataset(DBPediaTDBCreator.TDB_DIRECTORY).getDefaultModel();
+		if (model.isEmpty()) {
+			model = new DBPediaTDBCreator().createTDB();
+		}
 	}
 
 	/* (non-Javadoc)
