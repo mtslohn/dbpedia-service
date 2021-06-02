@@ -1,2 +1,5 @@
 /target/
 /resources/
+/.settings/
+/.idea/
+/dbpedia-service.iml

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
@@ -13,6 +14,7 @@ import br.ufsc.egc.curriculumextractor.model.taxonomy.Tree;
 import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface;
 import br.ufsc.egc.dbpedia.reader.service.impl.DBPediaServiceImpl;
 
+@Ignore(value = "It depends on mocking index resources instead of using the full index")
 public class DBpediaCategoriaBrasilTest {
 	
 	private DBPediaServiceInterface service; 
