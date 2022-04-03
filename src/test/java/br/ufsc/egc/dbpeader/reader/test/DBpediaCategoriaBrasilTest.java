@@ -3,11 +3,12 @@ package br.ufsc.egc.dbpeader.reader.test;
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Tree;
 import br.ufsc.egc.dbpedia.reader.service.DBPediaService;
-import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceImpl;
+import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceFactoryImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +20,8 @@ public class DBpediaCategoriaBrasilTest {
 	private DBPediaService service;
 
 	@Before
-	public void prepare() {
-		service = new DBPediaServiceImpl();
+	public void prepare() throws IOException {
+		service = new DBPediaServiceFactoryImpl().buildFromProperties();
 	}
 
 	@Test

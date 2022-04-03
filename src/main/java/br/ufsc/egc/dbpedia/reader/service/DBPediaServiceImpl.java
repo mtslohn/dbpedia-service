@@ -1,9 +1,7 @@
 package br.ufsc.egc.dbpedia.reader.service;
 
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
-import br.ufsc.egc.dbpedia.reader.conf.PropertyLoader;
-import br.ufsc.egc.dbpedia.reader.conf.ServiceProperty;
-import br.ufsc.egc.dbpedia.reader.util.tdb.DBPediaTDBCreator;
+import br.ufsc.egc.dbpedia.reader.util.tdb.TDBCreator;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.*;
@@ -20,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import javax.jws.WebMethod;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -30,27 +29,26 @@ public class DBPediaServiceImpl implements DBPediaService {
 
 	private Model model;
 
-	public DBPediaServiceImpl() {
+	public DBPediaServiceImpl(String tdbSchemaFolder,
+							  String categoriesLabelsFile,
+							  String categoriesSkosFile) throws IOException {
 		LOGGER.info("Loading DBPedia service...");
-		loadModel();
+		loadModel(tdbSchemaFolder, categoriesLabelsFile, categoriesSkosFile);
 		LOGGER.info("DBPedia service loaded");
 	}
 
-	private void loadModel() {
-		PropertyLoader propertyLoader = new PropertyLoader();
-		String tdbSchemaPath = propertyLoader.getProperty(ServiceProperty.TDB_SCHEMA_PATH);
-		File directory = new File(tdbSchemaPath);
+	private void loadModel(String tdbSchemaFolder, String categoriesLabelsFile, String categoriesSkosFile) throws IOException {
+		createFolderIfNotExists(tdbSchemaFolder);
+		model = TDBFactory.createDataset(tdbSchemaFolder).getDefaultModel();
+		if (model.isEmpty()) {
+			model = new TDBCreator().createTDBSchema(tdbSchemaFolder, categoriesLabelsFile, categoriesSkosFile);
+		}
+	}
 
+	private void createFolderIfNotExists(String tdbSchemaFolder) {
+		File directory = new File(tdbSchemaFolder);
 		if (!directory.exists()) {
 			directory.mkdirs();
-		}
-		model = TDBFactory.createDataset(tdbSchemaPath).getDefaultModel();
-		if (model.isEmpty()) {
-			model = new DBPediaTDBCreator().createTDBSchema(
-					propertyLoader.getProperty(ServiceProperty.CATEGORIES_LABELS_FILE),
-					propertyLoader.getProperty(ServiceProperty.CATEGORIES_SKOS_FILE),
-					propertyLoader.getProperty(ServiceProperty.TDB_SCHEMA_PATH)
-			);
 		}
 	}
 

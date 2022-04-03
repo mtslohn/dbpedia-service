@@ -18,22 +18,34 @@ public class RmiServer {
 		this.name = name;
 	}
 
-	public void start() {
+	public void register() {
 		try {
-			Remote stub = UnicastRemoteObject.exportObject(rmiImplementation, 0);
 			Registry registry = LocateRegistry.getRegistry();
-			registry.bind(name, stub);
-		} catch (RemoteException | AlreadyBoundException e) {
-			throw new RuntimeException("Error while registering the object", e);
+			Remote stub = UnicastRemoteObject.exportObject(rmiImplementation, 0);
+
+			register(registry, stub, 1);
+		} catch (RemoteException e) {
+			throw new RuntimeException("Error while preparing to register the object!", e);
 		}
 	}
 
-	public void stop() {
+	private void register(Registry registry, Remote stub, int attempt) throws RemoteException {
 		try {
-			Registry registry = LocateRegistry.getRegistry();
+			registry.bind(name, stub);
+		} catch (AlreadyBoundException e) {
+			if (attempt >= 3) {
+				throw new RuntimeException("Failed to register " + name + " after " + attempt + " attempts", e);
+			}
+			unregisterQuietly(registry);
+			register(registry, stub, attempt + 1);
+		}
+	}
+
+	private void unregisterQuietly(Registry registry) throws RemoteException {
+		try {
 			registry.unbind(name);
-		} catch (RemoteException | NotBoundException e) {
-			throw new RuntimeException("Error while unregistering the object", e);
+		} catch (NotBoundException e1) {
+			// silently fail
 		}
 	}
 
