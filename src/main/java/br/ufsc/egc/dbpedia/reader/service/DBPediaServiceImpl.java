@@ -1,7 +1,8 @@
 package br.ufsc.egc.dbpedia.reader.service;
 
 import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
-import br.ufsc.egc.dbpedia.reader.util.tdb.TDBCreator;
+import br.ufsc.egc.util.tdb.TDBCreator;
+import br.ufsc.egc.util.tdb.TDBCreator.SourceFile;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.*;
@@ -30,8 +31,8 @@ public class DBPediaServiceImpl implements DBPediaService {
 	private Model model;
 
 	public DBPediaServiceImpl(String tdbSchemaFolder,
-							  String categoriesLabelsFile,
-							  String categoriesSkosFile) throws IOException {
+	                          String categoriesLabelsFile,
+	                          String categoriesSkosFile) throws IOException {
 		LOGGER.info("Loading DBPedia service...");
 		loadModel(tdbSchemaFolder, categoriesLabelsFile, categoriesSkosFile);
 		LOGGER.info("DBPedia service loaded");
@@ -41,7 +42,9 @@ public class DBPediaServiceImpl implements DBPediaService {
 		createFolderIfNotExists(tdbSchemaFolder);
 		model = TDBFactory.createDataset(tdbSchemaFolder).getDefaultModel();
 		if (model.isEmpty()) {
-			model = new TDBCreator().createTDBSchema(tdbSchemaFolder, categoriesLabelsFile, categoriesSkosFile);
+			model = new TDBCreator().createTDBSchema(tdbSchemaFolder,
+					new SourceFile(categoriesLabelsFile, "TURTLE"),
+					new SourceFile(categoriesSkosFile, "TURTLE"));
 		}
 	}
 
