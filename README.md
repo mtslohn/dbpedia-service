@@ -3,7 +3,7 @@
 This project allows querying terms in DBPedia categories to analyze which are the broader and the narrower categories
 associated with them.
 
-It's used inside the https://github.com/mtslohn/taxonomy-extractor
+It's used inside https://github.com/mtslohn/taxonomy-extractor
 
 ## Requirements
 
