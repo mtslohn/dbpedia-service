@@ -1,32 +1,31 @@
 package br.ufsc.egc.dbpeader.reader.test;
 
+import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
+import br.ufsc.egc.curriculumextractor.model.taxonomy.Tree;
+import br.ufsc.egc.dbpedia.reader.service.DBPediaService;
+import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceImpl;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import br.ufsc.egc.curriculumextractor.model.taxonomy.Term;
-import br.ufsc.egc.curriculumextractor.model.taxonomy.Tree;
-import br.ufsc.egc.dbpedia.reader.service.DBPediaServiceInterface;
-import br.ufsc.egc.dbpedia.reader.service.impl.DBPediaServiceImpl;
-
 @Ignore(value = "It depends on mocking index resources instead of using the full index")
 public class DBpediaCategoriaBrasilTest {
-	
-	private DBPediaServiceInterface service; 
-	
+
+	private DBPediaService service;
+
 	@Before
 	public void prepare() {
-		service = DBPediaServiceImpl.getInstance();
+		service = new DBPediaServiceImpl();
 	}
-	
+
 	@Test
 	public void findNarrowConceptsTest() throws RemoteException {
-		List<String> narrowConcepts = service.findNarrowConcepts("Brasil");
+		List<String> narrowConcepts = service.getNarrowConcepts("Brasil");
 		StringBuilder builder = new StringBuilder("Conceitos filhos: ");
 		ListIterator<String> iterator = narrowConcepts.listIterator();
 		while (iterator.hasNext()) {
@@ -36,12 +35,12 @@ public class DBpediaCategoriaBrasilTest {
 				builder.append(", ");
 			}
 		}
-		System.out.println(builder.toString());
+		System.out.println(builder);
 	}
 
 	@Test
 	public void findBroaderConceptsTest() throws RemoteException {
-		List<String> broaderConcepts = service.findBroaderConcepts("Brasil");
+		List<String> broaderConcepts = service.getBroaderConcepts("Brasil");
 		StringBuilder builder = new StringBuilder("Conceitos pais: ");
 		ListIterator<String> iterator = broaderConcepts.listIterator();
 		while (iterator.hasNext()) {
@@ -51,12 +50,12 @@ public class DBpediaCategoriaBrasilTest {
 				builder.append(", ");
 			}
 		}
-		System.out.println(builder.toString());
+		System.out.println(builder);
 	}
 	
 	@Test
 	public void findAllBroaderConceptsTest() throws RemoteException {
-		List<String> broaderConcepts = service.findAllBroaderConcepts("Brasil");
+		List<String> broaderConcepts = service.getAllBroaderConcepts("Brasil");
 		StringBuilder builder = new StringBuilder("Conceitos pais: ");
 		ListIterator<String> iterator = broaderConcepts.listIterator();
 		while (iterator.hasNext()) {
@@ -66,7 +65,7 @@ public class DBpediaCategoriaBrasilTest {
 				builder.append(", ");
 			}
 		}
-		System.out.println(builder.toString());
+		System.out.println(builder);
 	}
 	
 	@Test
